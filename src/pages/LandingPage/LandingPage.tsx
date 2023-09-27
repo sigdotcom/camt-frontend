@@ -29,11 +29,11 @@ const Home: React.FC = () => {
         style={{
           fontSize: "2em",
           marginBottom: "20px",
-          color: "#3ba2dd",
+          color: "#555555",
           fontWeight: "bold",
         }}
       >
-        ACM Web
+        CAMT Dashboard
       </div>
       <div>
         {isAuthenticated ? (
@@ -44,7 +44,6 @@ const Home: React.FC = () => {
                 variant="outlined"
                 color="neutral"
                 sx={{ width: "200px" }}
-                // startDecorator={<Add />}
               >
                 Go to dashboard
               </Button>
@@ -57,7 +56,6 @@ const Home: React.FC = () => {
                 variant="outlined"
                 color="neutral"
                 sx={{ width: "200px" }}
-                // startDecorator={<Add />}
               >
                 Logout
               </Button>

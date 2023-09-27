@@ -9,11 +9,11 @@ interface PasswordValidationProps {
 const PasswordValidation: React.FC<PasswordValidationProps> = ({
   password,
 }) => {
+  // eslint-disable-next-line
+  const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>?]+/.test(password);
   const hasUppercase = /[A-Z]/.test(password);
   const hasDigits = /\d/.test(password);
-  const hasSymbols = /[!@#$%^&*()_+\-=[]{};':"\\|,.<>?]+/.test(password);
   const hasMinLength = password.length >= 8;
-
   const ValidationItem: React.FC<{ isValid: boolean; label: string }> = ({
     isValid,
     label,
