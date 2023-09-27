@@ -29,7 +29,7 @@ function Signup() {
   const [confirmationError, setConfirmationError] = useState<string | null>(
     null
   );
-
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   let navigate = useNavigate();
 
   useEffect(() => {
@@ -39,6 +39,7 @@ function Signup() {
     setPassword("");
     setConfirmationCode("");
     setIsConfirming(false);
+    setPasswordError(null);
   }, [isVisible]);
 
   const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -54,7 +55,9 @@ function Signup() {
       });
       setIsConfirming(true);
     } catch (error) {
-      console.log(error);
+      const err = error as any;
+      const errorMessage: string = err.message.split(": ")[1];
+      setPasswordError(errorMessage);
     }
   };
 
@@ -150,15 +153,25 @@ function Signup() {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </FormControl>
-                <FormControl>
+                <FormControl error={Boolean(passwordError)}>
                   <FormLabel>Password</FormLabel>
                   <Input
                     required
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setPasswordError(null); // Clear error when user starts typing
+                    }}
                     sx={{ marginBottom: "10px" }}
+                    error={Boolean(passwordError)}
                   />
+                  {passwordError && (
+                    <FormHelperText>
+                      <InfoOutlined />
+                      {passwordError}
+                    </FormHelperText>
+                  )}
                   {password !== "" ? (
                     <PasswordValidation password={password} />
                   ) : (

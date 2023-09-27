@@ -1,11 +1,11 @@
 import React from "react";
 
-const Profile = () => {
+const Sensor = () => {
   return (
     <div>
-      <p>Resume</p>
+      <p>Sensor</p>
     </div>
   );
 };
 
-export default Profile;
+export default Sensor;

@@ -40,7 +40,7 @@ var client_ssm_1 = require("@aws-sdk/client-ssm");
 var credential_provider_sso_1 = require("@aws-sdk/credential-provider-sso");
 var fs = require("fs");
 var REGION = "us-east-1";
-var PROFILE = "dev";
+var PROFILE = "research";
 var env = process.env.DEPLOYING_ENV_VAR || null;
 // Initializing the SSM client with specific profile and region
 var ssmClientConfig = {

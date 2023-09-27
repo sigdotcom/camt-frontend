@@ -22,7 +22,6 @@ if (!env) {
 }
 
 const ssmClient = new SSMClient(ssmClientConfig);
-// Fetch parameters
 async function fetchParameters() {
   let apiUrl: string =
     "https://nnikhk3cq3.execute-api.us-east-1.amazonaws.com/Prod";
@@ -45,7 +44,6 @@ async function fetchParameters() {
     const envContent = `
         REACT_APP_USER_POOL_ID=${userPoolIdResponse.Parameter?.Value}
         REACT_APP_USER_POOL_CLIENT_ID=${userPoolWebClientIdResponse.Parameter?.Value}
-
         REACT_APP_API_URL=${apiUrl}
       `;
 

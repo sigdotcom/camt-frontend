@@ -1,26 +1,17 @@
 import React from "react";
 import { ACCESS_LEVELS, Tool } from "../types";
-import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import SensorsIcon from "@mui/icons-material/Sensors";
 import getUserRole from "../../../common/getUserRole";
-import Profile from "./Profile";
-import Resume from "./Resume";
+import Sensor from "./Sensor";
 import { RouteObject, redirect } from "react-router";
 
 export const tools: Tool[] = [
   {
-    name: "Profile",
-    icon: React.createElement(AccountBoxIcon),
-    path: "profile",
+    name: "Sensor Data",
+    icon: React.createElement(SensorsIcon),
+    path: "sensor",
     accessLevel: [ACCESS_LEVELS.ALL],
-    component: Profile,
-  },
-  {
-    name: "Resume",
-    icon: React.createElement(PictureAsPdfIcon),
-    path: "resume",
-    accessLevel: [ACCESS_LEVELS.SPONSOR, ACCESS_LEVELS.ADMIN],
-    component: Resume,
+    component: Sensor,
   },
 ];
 
