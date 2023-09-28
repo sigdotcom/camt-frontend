@@ -7,17 +7,18 @@ import { RouteObject, redirect } from "react-router";
 
 export const tools: Tool[] = [
   {
-    name: "Sensor Data",
+    name: "Sensors",
     icon: React.createElement(SensorsIcon),
-    path: "sensor",
+    path: "sensors",
     accessLevel: [ACCESS_LEVELS.ALL],
     component: Sensor,
+    children: true,
   },
 ];
 
 export function getToolRoutes() {
   const toolRoutes: RouteObject[] = tools.map((tool) => ({
-    path: tool.path,
+    path: tool.children ? `${tool.path}/*` : tool.path, // Check for children and append wildcard if true
     Component: tool.component,
     loader: async function authLoader() {
       const role = await getUserRole();
