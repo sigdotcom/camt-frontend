@@ -1,5 +1,8 @@
-# ACM Web AWS Frontend
+# Center for Aerospace Manufacturing Technologies (CAMT) Dashboard Frontend
 
+The Center for Aerospace Manufacturing Technologies (CAMT) was established in May 2004 by the Missouri University Of Science and Technology (Missouri S&T) in partnership with The Air Force Research Labs and Boeing Research and Technology. It serves as a U.S. center of excellence for the development and transition of innovative advanced technologies for the aerospace manufacturing supply chain.
+
+Learn more at https://camt.mst.edu/
 This is responsible for building and integarting React with AWS Amplify
 
 ## Getting Started
@@ -14,7 +17,7 @@ This is responsible for building and integarting React with AWS Amplify
 
 #### Clone GitHub Repository
 
-- `git clone git@github.com:sigdotcom/mstacm-frontend.git`
+- `git clone git@github.com:sigdotcom/camt-research-frontend.git`
 
 #### Setup AWS enviroment
 
