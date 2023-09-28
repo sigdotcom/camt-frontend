@@ -6,6 +6,7 @@ import { Outlet } from "react-router";
 import getUserRole from "../../common/getUserRole";
 import { ACCESS_LEVELS, Tool } from "./types";
 import { useMediaQuery } from "@mui/material";
+import DynamicBreadcrumbs from "../../components/Breadcrumbs";
 
 const Dashboard: React.FC = () => {
   const [renderTool, setRenderTool] = useState<Tool[]>([]);
@@ -43,10 +44,16 @@ const Dashboard: React.FC = () => {
             p: 3,
             marginLeft: { xs: 0, md: isDesktop ? "60px" : "0px" },
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            flexDirection: "column",
+            alignItems: "start", // Align content to the start
+            justifyContent: "flex-start", // Justify content to the start
           }}
         >
+          <Box sx={{ mb: 2 }}>
+            {" "}
+            {/* Add some margin below the breadcrumbs */}
+            <DynamicBreadcrumbs />
+          </Box>
           <Outlet />
         </Box>
       </Box>

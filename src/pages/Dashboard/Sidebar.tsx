@@ -45,6 +45,9 @@ const Sidebar: React.FC<SidebarProps> = ({ tools, isDesktop }) => {
               ? "400px"
               : "60px"
             : "100%",
+          position: isDesktop ? "fixed" : "relative",
+          zIndex: 1000,
+          width: isDesktop ? (isHovered ? "400px" : "60px") : "100%",
         }}
       >
         <Box
