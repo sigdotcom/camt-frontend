@@ -40,7 +40,7 @@ var client_ssm_1 = require("@aws-sdk/client-ssm");
 var credential_provider_sso_1 = require("@aws-sdk/credential-provider-sso");
 var fs = require("fs");
 var REGION = "us-east-1";
-var PROFILE = "research";
+var PROFILE = "dev";
 var env = process.env.DEPLOYING_ENV_VAR || null;
 // Initializing the SSM client with specific profile and region
 var ssmClientConfig = {
@@ -53,31 +53,35 @@ if (!env) {
 var ssmClient = new client_ssm_1.SSMClient(ssmClientConfig);
 // Fetch parameters
 function fetchParameters() {
-    var _a, _b;
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function () {
-        var apiUrl, userPoolId, userPoolWebClientId, userPoolIdResponse, userPoolWebClientIdResponse, envContent, formattedEnv, error_1;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var userPoolId, userPoolWebClientId, apiUrl, userPoolIdResponse, userPoolWebClientIdResponse, apiUrlResponse, envContent, formattedEnv, error_1;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
                 case 0:
-                    apiUrl = "https://nnikhk3cq3.execute-api.us-east-1.amazonaws.com/Prod";
-                    _c.label = 1;
-                case 1:
-                    _c.trys.push([1, 4, , 5]);
+                    _d.trys.push([0, 4, , 5]);
                     userPoolId = new client_ssm_1.GetParameterCommand({
-                        Name: "userPoolId",
+                        Name: "userPoolIdResearch",
                         WithDecryption: true
                     });
                     userPoolWebClientId = new client_ssm_1.GetParameterCommand({
-                        Name: "userPoolWebClientId",
+                        Name: "userPoolWebClientIdResearch",
+                        WithDecryption: true
+                    });
+                    apiUrl = new client_ssm_1.GetParameterCommand({
+                        Name: "apiUrlResearch",
                         WithDecryption: true
                     });
                     return [4 /*yield*/, ssmClient.send(userPoolId)];
-                case 2:
-                    userPoolIdResponse = _c.sent();
+                case 1:
+                    userPoolIdResponse = _d.sent();
                     return [4 /*yield*/, ssmClient.send(userPoolWebClientId)];
+                case 2:
+                    userPoolWebClientIdResponse = _d.sent();
+                    return [4 /*yield*/, ssmClient.send(apiUrl)];
                 case 3:
-                    userPoolWebClientIdResponse = _c.sent();
-                    envContent = "\n        REACT_APP_USER_POOL_ID=".concat((_a = userPoolIdResponse.Parameter) === null || _a === void 0 ? void 0 : _a.Value, "\n        REACT_APP_USER_POOL_CLIENT_ID=").concat((_b = userPoolWebClientIdResponse.Parameter) === null || _b === void 0 ? void 0 : _b.Value, "\n\n        REACT_APP_API_URL=").concat(apiUrl, "\n      ");
+                    apiUrlResponse = _d.sent();
+                    envContent = "\n        REACT_APP_USER_POOL_ID=".concat((_a = userPoolIdResponse.Parameter) === null || _a === void 0 ? void 0 : _a.Value, "\n        REACT_APP_USER_POOL_CLIENT_ID=").concat((_b = userPoolWebClientIdResponse.Parameter) === null || _b === void 0 ? void 0 : _b.Value, "\n        REACT_APP_API_URL=").concat((_c = apiUrlResponse.Parameter) === null || _c === void 0 ? void 0 : _c.Value, "\n      ");
                     formattedEnv = envContent
                         .split("\n")
                         .map(function (line) { return line.trim(); })
@@ -86,7 +90,7 @@ function fetchParameters() {
                     fs.writeFileSync(".env", formattedEnv);
                     return [3 /*break*/, 5];
                 case 4:
-                    error_1 = _c.sent();
+                    error_1 = _d.sent();
                     console.error("Error fetching parameters:", error_1);
                     return [3 /*break*/, 5];
                 case 5: return [2 /*return*/];

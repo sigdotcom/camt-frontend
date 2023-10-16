@@ -7,7 +7,7 @@ import { fromSSO } from "@aws-sdk/credential-provider-sso";
 import * as fs from "fs";
 
 const REGION = "us-east-1";
-const PROFILE = "research";
+const PROFILE = "dev";
 
 const env = process.env.DEPLOYING_ENV_VAR || null;
 
@@ -22,17 +22,19 @@ if (!env) {
 }
 
 const ssmClient = new SSMClient(ssmClientConfig);
+// Fetch parameters
 async function fetchParameters() {
-  let apiUrl: string =
-    "https://nnikhk3cq3.execute-api.us-east-1.amazonaws.com/Prod";
-
   try {
     const userPoolId = new GetParameterCommand({
-      Name: "userPoolId",
+      Name: "userPoolIdResearch",
       WithDecryption: true,
     });
     const userPoolWebClientId = new GetParameterCommand({
-      Name: "userPoolWebClientId",
+      Name: "userPoolWebClientIdResearch",
+      WithDecryption: true,
+    });
+    const apiUrl = new GetParameterCommand({
+      Name: "apiUrlResearch",
       WithDecryption: true,
     });
 
@@ -40,11 +42,11 @@ async function fetchParameters() {
     const userPoolWebClientIdResponse = await ssmClient.send(
       userPoolWebClientId
     );
-
+    const apiUrlResponse = await ssmClient.send(apiUrl);
     const envContent = `
         REACT_APP_USER_POOL_ID=${userPoolIdResponse.Parameter?.Value}
         REACT_APP_USER_POOL_CLIENT_ID=${userPoolWebClientIdResponse.Parameter?.Value}
-        REACT_APP_API_URL=${apiUrl}
+        REACT_APP_API_URL=${apiUrlResponse.Parameter?.Value}
       `;
 
     const formattedEnv = envContent
