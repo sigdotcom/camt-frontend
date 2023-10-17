@@ -1,17 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import Table from "../../../components/Table";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Card from "@mui/joy/Card";
+import { Alert, Box, IconButton } from "@mui/joy";
 import CardContent from "@mui/joy/CardContent";
 import Typography from "@mui/joy/Typography";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import PlaylistAddCheckCircleRoundedIcon from "@mui/icons-material/PlaylistAddCheckCircleRounded";
+import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+
 import { Sensor } from "../types";
 import {
   dhtHumidity,
   dhtTemperature,
   thermocoupleTemperature,
 } from "./sensorData";
+import { useUploadData } from "../../../api/upload";
 
 interface TemperatureCardProps {
   data: any[];
@@ -39,37 +45,134 @@ const sensors: Sensor[] = [
 ];
 
 const SensorTool = () => {
+  const uploadData = useUploadData();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [successAlertOpen, setSuccessAlertOpen] = useState(false);
+  const [errorAlertOpen, setErrorAlertOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleFileChange = (e: any) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    try {
+      if (selectedFile) {
+        await uploadData.mutateAsync({
+          file: selectedFile,
+        });
+
+        // Trigger the Alert on success
+        setSuccessAlertOpen(true);
+        setSuccessMessage("File uploaded successfully!");
+
+        // Hide after 3 seconds
+        setTimeout(() => setSuccessAlertOpen(false), 3000);
+      } else {
+        throw new Error("No file selected");
+      }
+    } catch (error) {
+      setErrorAlertOpen(true);
+      setErrorMessage("Error uploading file: " + (error as Error).message);
+
+      // Hide after 5 seconds
+      setTimeout(() => setErrorAlertOpen(false), 5000);
+    }
+  };
+
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "center",
+
         width: "100%",
       }}
     >
-      {sensors.map((sensor) => {
-        return (
-          <div style={{ margin: "10px" }}>
-            <Routes>
-              <Route
-                index
-                element={
-                  <DataCard
-                    sensorName={sensor.sensorName}
-                    routePath={sensor.sensorName}
-                    data={sensor.data}
-                    desiredRange={sensor.range}
-                  />
-                }
-              />
-              <Route
-                path={sensor.sensorName}
-                element={<Table data={sensor.data} />}
-              />
-            </Routes>
-          </div>
-        );
-      })}
+      <Box
+        sx={{
+          position: "fixed",
+          top: 10,
+          left: "50%",
+          transform: "translateX(-50%)", // This will center the box horizontally
+          zIndex: 1000, // Ensures the alerts are on top of other elements
+        }}
+      >
+        {successAlertOpen && (
+          <Alert
+            variant="soft"
+            color="success"
+            startDecorator={<PlaylistAddCheckCircleRoundedIcon />}
+            endDecorator={
+              <IconButton
+                variant="plain"
+                size="sm"
+                color="success"
+                onClick={() => setSuccessAlertOpen(false)}
+              >
+                <CloseRoundedIcon />
+              </IconButton>
+            }
+          >
+            {successMessage}
+          </Alert>
+        )}
+
+        {errorAlertOpen && (
+          <Alert
+            variant="outlined"
+            color="danger"
+            startDecorator={<AccountCircleRoundedIcon />}
+            endDecorator={
+              <IconButton
+                variant="plain"
+                size="sm"
+                color="danger"
+                onClick={() => setErrorAlertOpen(false)}
+              >
+                <CloseRoundedIcon />
+              </IconButton>
+            }
+          >
+            {errorMessage}
+          </Alert>
+        )}
+      </Box>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div style={{ margin: "20px" }}>
+          <input type="file" onChange={handleFileChange} />
+          <button onClick={handleUpload}>Upload</button>
+        </div>
+        {sensors.map((sensor) => {
+          return (
+            <div style={{ margin: "10px" }} key={sensor.sensorName}>
+              <Routes>
+                <Route
+                  index
+                  element={
+                    <DataCard
+                      sensorName={sensor.sensorName}
+                      routePath={sensor.sensorName}
+                      data={sensor.data}
+                      desiredRange={sensor.range}
+                    />
+                  }
+                />
+                <Route
+                  path={sensor.sensorName}
+                  element={<Table data={sensor.data} />}
+                />
+              </Routes>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -87,7 +190,8 @@ const DataCard: React.FC<TemperatureCardProps> = ({
   return (
     <Card
       sx={{
-        width: 320,
+        maxWidth: 320,
+        display: "grid",
         backgroundColor: "#f5f5f5",
         boxShadow: 3,
         transition: "transform 0.2s",
