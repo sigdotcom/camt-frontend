@@ -211,7 +211,7 @@ const Permissions = () => {
       <Box
         sx={{
           position: "fixed",
-          top: 10, // You can adjust this as needed
+          top: 10,
           left: "50%",
           transform: "translateX(-50%)", // This will center the box horizontally
           zIndex: 1000, // Ensures the alerts are on top of other elements
