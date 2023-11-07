@@ -21,91 +21,110 @@ const Sidebar: React.FC<SidebarProps> = ({ tools, isDesktop }) => {
   const [open, setOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  return (
-    <React.Fragment>
-      {/* Button to open drawer on mobile */}
+  const sidebarContent = (
+    <Box
+      onMouseEnter={() => isDesktop && setIsHovered(true)}
+      onMouseLeave={() => isDesktop && setIsHovered(false)}
+      sx={{
+        width: isDesktop ? (isHovered ? "400px" : "60px") : "100%",
+        height: "100%",
+        position: "fixed",
+        zIndex: 1000,
+        backgroundColor: "#677882",
+        color: "white",
+      }}
+    >
       {!isDesktop && (
-        <IconButton
-          variant="outlined"
-          style={{ height: 0 }}
-          color="neutral"
-          onClick={() => setOpen(true)}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            ml: "auto",
+            mt: 1,
+            mr: 1,
+          }}
         >
-          <Menu />
-        </IconButton>
+          <ModalClose
+            id="close-icon"
+            sx={{ position: "initial" }}
+            onClick={() => setOpen(false)}
+          />
+        </Box>
       )}
-      <Drawer
-        open={isDesktop || open}
-        onClose={() => setOpen(false)}
-        hideBackdrop={true}
-        size="sm"
+      <List
+        size="lg"
+        component="nav"
         sx={{
-          "--Drawer-horizontalSize": isDesktop
-            ? isHovered
-              ? "400px"
-              : "60px"
-            : "100%",
-          position: isDesktop ? "fixed" : "relative",
-          zIndex: 1000,
-          width: isDesktop ? (isHovered ? "400px" : "60px") : "100%",
+          flex: "none",
+          mt: 6,
+          mb: 5,
+          fontSize: "xl",
+          "& > a": {
+            display: "flex",
+            textDecoration: "none",
+            width: "100%",
+          },
         }}
       >
-        <Box
-          onMouseEnter={() => isDesktop && setIsHovered(true)}
-          onMouseLeave={() => isDesktop && setIsHovered(false)}
-          sx={{ width: "100%", height: "100%" }}
-        >
-          {!isDesktop && (
-            <Box
+        {tools.map((tool) => (
+          <Link to={"/dashboard/" + tool.path}>
+            <ListItemButton
+              key={tool.name}
+              onClick={() => setOpen(false)}
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 0.5,
-                ml: "auto",
-                mt: 1,
-                mr: 1,
+                fontWeight: "lg",
+                justifyContent: "center",
+                width: "100%",
+                color: "white",
               }}
             >
-              <ModalClose
-                id="close-icon"
-                sx={{ position: "initial" }}
-                onClick={() => setOpen(false)}
-              />
-            </Box>
-          )}
-          <List
-            size="lg"
-            component="nav"
-            sx={{
-              flex: "none",
-              mt: 6,
-              mb: 5,
-              fontSize: "xl",
-              "& > a": {
-                display: "flex",
-                textDecoration: "none",
-                width: "100%",
-              },
-            }}
-          >
-            {tools.map((tool, index) => (
-              <Link to={"/dashboard/" + tool.path}>
-                <ListItemButton
-                  key={tool.name}
-                  onClick={() => setOpen(false)}
-                  sx={{
-                    fontWeight: "lg",
-                    justifyContent: "center",
-                    width: "100%",
-                  }}
-                >
-                  {isHovered || !isDesktop ? tool.name : tool.icon}{" "}
-                </ListItemButton>
-              </Link>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
+              {isHovered || !isDesktop ? tool.name : tool.icon}
+            </ListItemButton>
+          </Link>
+        ))}
+      </List>
+    </Box>
+  );
+
+  return (
+    <React.Fragment>
+      {!isDesktop &&
+        !open && ( // Add the !open condition here
+          <Box sx={{ position: "relative" }}>
+            <IconButton
+              variant="outlined"
+              sx={{
+                position: "absolute",
+                top: "10px",
+                left: "10px",
+                zIndex: 1100,
+              }}
+              color="neutral"
+              onClick={() => setOpen(true)}
+            >
+              <Menu />
+            </IconButton>
+          </Box>
+        )}
+      {isDesktop ? (
+        sidebarContent
+      ) : (
+        <Drawer
+          open={open}
+          onClose={() => setOpen(false)}
+          hideBackdrop={true}
+          size="sm"
+          sx={{
+            "--Drawer-horizontalSize": "100%",
+            position: "relative",
+            zIndex: 1000,
+            width: "100%",
+          }}
+        >
+          {sidebarContent}
+        </Drawer>
+      )}
     </React.Fragment>
   );
 };

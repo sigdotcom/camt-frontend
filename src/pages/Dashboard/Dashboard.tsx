@@ -7,11 +7,14 @@ import getUserRole from "../../common/getUserRole";
 import { ACCESS_LEVELS, Tool } from "./types";
 import { useMediaQuery } from "@mui/material";
 import DynamicBreadcrumbs from "../../components/Breadcrumbs";
+import { useLocation } from "react-router-dom";
+import Data from "./tools/Data";
 
 const Dashboard: React.FC = () => {
   const [renderTool, setRenderTool] = useState<Tool[]>([]);
   const [role, setRole] = useState<string | null>(null);
   const isDesktop = useMediaQuery("(min-width:1025px)");
+  const location = useLocation();
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -42,18 +45,19 @@ const Dashboard: React.FC = () => {
           sx={{
             flexGrow: 1,
             p: 3,
+            overflow: "auto",
             marginLeft: { xs: 0, md: isDesktop ? "60px" : "0px" },
             display: "flex",
             flexDirection: "column",
-            alignItems: "start", // Align content to the start
-            justifyContent: "flex-start", // Justify content to the start
+            alignItems: "start",
+            justifyContent: "flex-start",
           }}
         >
-          <Box sx={{ mb: 2 }}>
-            {" "}
-            {/* Add some margin below the breadcrumbs */}
+          {location.pathname === "/dashboard" && <Data />}
+          <Box sx={{ mb: 2, mt: "20px" }}>
             <DynamicBreadcrumbs />
           </Box>
+
           <Outlet />
         </Box>
       </Box>

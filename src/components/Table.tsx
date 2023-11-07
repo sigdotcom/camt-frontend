@@ -1,50 +1,55 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridToolbarContainer,
+  GridToolbarExport,
+} from "@mui/x-data-grid";
 
 interface TableProps {
   data: any[];
 }
 
-const DynamicTable: React.FC<TableProps> = ({ data }) => {
-  // Check if data is empty
+const CustomToolbar = () => {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarExport />
+    </GridToolbarContainer>
+  );
+};
+
+const Table: React.FC<TableProps> = ({ data }) => {
   if (!data.length) return null;
 
-  // Generate columns based on the first item in the data array
-  const columns: GridColDef[] = Object.keys(data[0]).map((key) => {
-    let colDef: GridColDef = {
-      field: key,
-      headerName: key.charAt(0).toUpperCase() + key.slice(1), // Convert to title case
-      width: 150,
-      editable: true,
-    };
-
-    // Check for id field to adjust width
-    if (key === "id") {
-      colDef.width = 90;
-    }
-
-    return colDef;
-  });
+  // Generate columns from data keys
+  const columns: GridColDef[] = Object.keys(data[0]).map((key) => ({
+    field: key,
+    headerName: key.charAt(0).toUpperCase() + key.slice(1),
+    editable: false,
+    minWidth: 100,
+    // Only use flex when necessary, not with a width
+    // When using flex, you can control the relative size of this column compared to others
+  }));
 
   return (
     <Box sx={{ height: 400, width: "100%" }}>
       <DataGrid
+        getRowHeight={() => "auto"}
         rows={data}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
-            },
-          },
+        slots={{
+          toolbar: CustomToolbar,
         }}
         pageSizeOptions={[5]}
         checkboxSelection
-        disableRowSelectionOnClick
+        // Ensure the DataGrid takes the full width of its container
+        sx={{
+          width: "80vw",
+        }}
       />
     </Box>
   );
 };
 
-export default DynamicTable;
+export default Table;

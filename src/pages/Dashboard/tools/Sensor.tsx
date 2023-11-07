@@ -1,60 +1,67 @@
 import React, { useState } from "react";
 import Table from "../../../components/Table";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Card from "@mui/joy/Card";
-import { Alert, Box, IconButton } from "@mui/joy";
+import { Alert, Box, Button, IconButton, styled } from "@mui/joy";
 import CardContent from "@mui/joy/CardContent";
 import Typography from "@mui/joy/Typography";
-import CancelIcon from "@mui/icons-material/Cancel";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import PlaylistAddCheckCircleRoundedIcon from "@mui/icons-material/PlaylistAddCheckCircleRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-
-import { Sensor } from "../types";
-import {
-  dhtHumidity,
-  dhtTemperature,
-  thermocoupleTemperature,
-} from "./sensorData";
 import { useUploadData } from "../../../api/upload";
+import { useListSensors } from "../../../api/sensors";
 
-interface TemperatureCardProps {
+interface CardProps {
   data: any[];
   sensorName: string;
-  desiredRange: [number, number]; // [min, max]
   routePath: string; // The route to navigate to when the card is clicked
 }
 
-const sensors: Sensor[] = [
-  {
-    sensorName: "dhtTemperature",
-    data: dhtTemperature,
-    range: [70, 74],
-  },
-  {
-    sensorName: "dhtHumidity",
-    data: dhtHumidity,
-    range: [59, 61],
-  },
-  {
-    sensorName: "thermocoupleTemperature",
-    data: thermocoupleTemperature,
-    range: [65, 70],
-  },
-];
+const HiddenFileInput = styled("input")({
+  display: "none",
+});
 
 const SensorTool = () => {
   const uploadData = useUploadData();
+  const { data: rawData, isLoading: listSensorLoading } = useListSensors({
+    refetchInterval: 500, // Refetch every second when the window is in focus
+    refetchOnWindowFocus: true, // Refetch when the window is refocused
+    refetchIntervalInBackground: false, // Don't refetch when the window is not in focus
+  });
   const [selectedFile, setSelectedFile] = useState(null);
   const [successAlertOpen, setSuccessAlertOpen] = useState(false);
   const [errorAlertOpen, setErrorAlertOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const location = useLocation();
+  const data = Array.isArray(rawData) ? rawData : [];
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const handleClick = () => {
+    if (inputRef.current) {
+      inputRef.current.click();
+    }
+  };
   const handleFileChange = (e: any) => {
     setSelectedFile(e.target.files[0]);
   };
+  const processedData = data.map((sensor) => {
+    try {
+      sensor.data = JSON.parse(sensor.data);
+    } catch (e) {
+      console.error("Failed to parse sensor data:", e);
+    }
+
+    return {
+      ...sensor,
+      data: Array.isArray(sensor.data)
+        ? sensor.data.map((item: any, index: number) => ({
+            ...item,
+            id: item.id ?? index, // Use existing id or fallback to index
+          }))
+        : [],
+    };
+  });
 
   const handleUpload = async () => {
     try {
@@ -80,13 +87,13 @@ const SensorTool = () => {
       setTimeout(() => setErrorAlertOpen(false), 5000);
     }
   };
+  console.log(data);
 
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "center",
-
         width: "100%",
       }}
     >
@@ -139,58 +146,73 @@ const SensorTool = () => {
           </Alert>
         )}
       </Box>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div style={{ margin: "20px" }}>
-          <input type="file" onChange={handleFileChange} />
-          <button onClick={handleUpload}>Upload</button>
+
+      {listSensorLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {location.pathname === "/dashboard/sensors" && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <HiddenFileInput
+                accept="*"
+                type="file"
+                ref={inputRef}
+                onChange={handleFileChange}
+              />
+              <Button variant="solid" color="primary" onClick={handleClick}>
+                Choose file
+              </Button>
+              <Button variant="outlined" color="primary" onClick={handleUpload}>
+                Upload
+              </Button>
+            </Box>
+          )}
+          {processedData.map((sensor) => {
+            return (
+              <div style={{ margin: "10px" }} key={sensor.sensorId}>
+                <Routes>
+                  <Route
+                    index
+                    element={
+                      <DataCard
+                        sensorName={"Sensor-" + sensor.displayName}
+                        routePath={sensor.displayName}
+                        data={sensor.data}
+                      />
+                    }
+                  />
+                  <Route
+                    path={sensor.displayName}
+                    element={<Table data={sensor.data} />}
+                  />
+                </Routes>
+              </div>
+            );
+          })}
         </div>
-        {sensors.map((sensor) => {
-          return (
-            <div style={{ margin: "10px" }} key={sensor.sensorName}>
-              <Routes>
-                <Route
-                  index
-                  element={
-                    <DataCard
-                      sensorName={sensor.sensorName}
-                      routePath={sensor.sensorName}
-                      data={sensor.data}
-                      desiredRange={sensor.range}
-                    />
-                  }
-                />
-                <Route
-                  path={sensor.sensorName}
-                  element={<Table data={sensor.data} />}
-                />
-              </Routes>
-            </div>
-          );
-        })}
-      </div>
+      )}
     </div>
   );
 };
 
-const DataCard: React.FC<TemperatureCardProps> = ({
-  data,
-  desiredRange,
-  routePath,
-  sensorName,
-}) => {
-  const isWithinRange =
-    data.at(-1).temp >= desiredRange[0] && data.at(-1).temp <= desiredRange[1];
+const DataCard: React.FC<CardProps> = ({ routePath, sensorName }) => {
   const navigate = useNavigate();
 
   return (
     <Card
       sx={{
-        maxWidth: 320,
+        maxWidth: 420,
         display: "grid",
         backgroundColor: "#f5f5f5",
         boxShadow: 3,
@@ -205,32 +227,15 @@ const DataCard: React.FC<TemperatureCardProps> = ({
       <CardContent>
         <Typography
           variant="plain"
-          sx={{ textAlign: "center", marginBottom: "1rem", fontWeight: "bold" }}
+          sx={{
+            textAlign: "center",
+            marginBottom: "1rem",
+            fontSize: "15px",
+            fontWeight: "bold",
+          }}
         >
           {sensorName}
         </Typography>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="plain" sx={{ fontSize: "3rem" }}>
-            {data.at(-1).temp}°C
-          </Typography>
-          {isWithinRange ? (
-            <CheckCircleOutlineIcon
-              fontSize="large"
-              style={{ color: "green" }}
-            />
-          ) : (
-            <CancelIcon fontSize="large" color="error" />
-          )}
-          <Typography variant="plain">
-            Desired Range: {desiredRange[0]}°C - {desiredRange[1]}°C
-          </Typography>
-        </div>
       </CardContent>
     </Card>
   );
