@@ -15,13 +15,24 @@ import {
   Alert,
   IconButton,
   Button,
+  Stack,
 } from "@mui/joy";
 import PlaylistAddCheckCircleRoundedIcon from "@mui/icons-material/PlaylistAddCheckCircleRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+
+import RefreshIcon from "@mui/icons-material/Refresh";
+import { ACCESS_LEVELS } from "../types";
+
 const Permissions = () => {
-  const { data: rawData, isLoading } = useListUsers({
-    refetchrefetchInterval: 1000,
+  const {
+    data: rawData,
+    isLoading: listUserLoading,
+    refetch,
+  } = useListUsers({
+    refetchInterval: 500, // Refetch every second when the window is in focus
+    refetchOnWindowFocus: true, // Refetch when the window is refocused
+    refetchIntervalInBackground: false, // Don't refetch when the window is not in focus
   });
   const updatePermission = useUpdatePermission();
   const createAccount = useCreateAccount();
@@ -56,8 +67,9 @@ const Permissions = () => {
             handleRoleChange(params.id, value, params.row.awsAccountStatus)
           }
         >
-          <Option value="member">member</Option>
-          <Option value="admin">admin</Option>
+          <Option value={ACCESS_LEVELS.MEMBER}>Member</Option>
+          <Option value={ACCESS_LEVELS.RESEARCHER}>Researcher</Option>
+          <Option value={ACCESS_LEVELS.ADMIN}>Admin</Option>
         </Select>
       ),
     },
@@ -98,13 +110,14 @@ const Permissions = () => {
             }
             size="md"
             variant="solid"
-            color="primary"
+            color="success"
           >
             Approve
           </Button>
         ),
     },
   ];
+
   const handleRoleChange = async (
     id: any,
     newValue: string | null,
@@ -188,7 +201,7 @@ const Permissions = () => {
     }
   };
 
-  const filteredData = isLoading
+  const filteredData = listUserLoading
     ? []
     : data.filter(
         (row: {
@@ -207,7 +220,6 @@ const Permissions = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <h1>Permissions</h1>
       <Box
         sx={{
           position: "fixed",
@@ -258,21 +270,37 @@ const Permissions = () => {
         )}
       </Box>
 
-      <FormControl style={{ marginBottom: 20, width: "300px" }}>
-        <Input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by name"
+      <div>
+        <FormControl
+          style={{ marginBottom: 20, marginRight: 10, width: "300px" }}
+        >
+          <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            spacing={2}
+          >
+            {" "}
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name"
+            />
+            <IconButton onClick={() => refetch()} aria-label="refresh">
+              <RefreshIcon />
+            </IconButton>
+          </Stack>
+        </FormControl>
+        <DataGrid
+          rows={filteredData}
+          columns={columns}
+          pageSizeOptions={[5]}
+          disableRowSelectionOnClick
+          getRowId={(row) => row.userId}
+          loading={listUserLoading}
+          autoHeight={true}
         />
-      </FormControl>
-
-      <DataGrid
-        rows={filteredData}
-        columns={columns}
-        pageSizeOptions={[5]}
-        disableRowSelectionOnClick
-        getRowId={(row) => row.userId}
-      />
+      </div>
     </Box>
   );
 };

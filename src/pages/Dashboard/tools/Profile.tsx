@@ -16,7 +16,9 @@ const Profile = () => {
   const userId = currentUserData?.accessToken?.payload?.username || "";
 
   const { data: getUserData, isLoading: getUserLoading } = useGetUser(userId, {
-    refetchrefetchInterval: 1000,
+    refetchInterval: 500, // Refetch every second when the window is in focus
+    refetchOnWindowFocus: true, // Refetch when the window is refocused
+    refetchIntervalInBackground: false, // Don't refetch when the window is not in focus
   });
 
   const [role, setRole] = useState<string>("");
@@ -67,7 +69,6 @@ const Profile = () => {
         textAlign: "center",
       }}
     >
-      <h1>Profile</h1>
       <Box
         sx={{
           position: "fixed",
@@ -117,38 +118,44 @@ const Profile = () => {
           </Alert>
         )}
       </Box>
-      <p>Logged in as: {email}</p>
-      <p>Access Level: {role}</p>
 
-      {awsAccountStatus === "pending" ? (
-        <Button
-          loading
-          loadingPosition="start"
-          sx={{ padding: 0, width: 200, margin: "auto" }}
-        >
-          Waiting for approval...
-        </Button>
-      ) : awsAccountStatus !== "false" ? (
-        <Button
-          component="a"
-          color="success"
-          target="_blank"
-          href="https://mstacm.awsapps.com/start#/"
-          startDecorator={<OpenInNew />}
-          sx={{ width: 200, margin: "auto" }}
-        >
-          Open AWS Console
-        </Button>
+      {getUserLoading ? (
+        <p>Loading...</p>
       ) : (
-        <Button
-          onClick={handleApproveAccount}
-          size="md"
-          sx={{ width: 200, margin: "auto" }}
-          variant="solid"
-          color="primary"
-        >
-          Request AWS Access
-        </Button>
+        <div>
+          <p>Logged in as: {email}</p>
+          <p>Access Level: {role}</p>
+          {awsAccountStatus === "pending" ? (
+            <Button
+              loading
+              loadingPosition="start"
+              sx={{ padding: 0, width: 200, margin: "auto" }}
+            >
+              Waiting for approval...
+            </Button>
+          ) : awsAccountStatus !== "false" ? (
+            <Button
+              component="a"
+              color="success"
+              target="_blank"
+              href="https://mstacm.awsapps.com/start#/"
+              startDecorator={<OpenInNew />}
+              sx={{ width: 200, margin: "auto" }}
+            >
+              Open AWS Console
+            </Button>
+          ) : (
+            <Button
+              onClick={handleApproveAccount}
+              size="md"
+              sx={{ width: 200, margin: "auto" }}
+              variant="solid"
+              color="primary"
+            >
+              Request AWS Access
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

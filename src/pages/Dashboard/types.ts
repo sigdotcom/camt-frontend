@@ -14,10 +14,10 @@ export enum ACCESS_LEVELS {
   MEMBER = "member",
   ADMIN = "admin",
   SPONSOR = "sponsor",
+  RESEARCHER = "researcher",
 }
 
 export type Sensor = {
-  sensorName: string;
+  sensorId: string;
   data: any[];
-  range: [number, number];
 };

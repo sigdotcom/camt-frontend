@@ -3,10 +3,12 @@ import { ACCESS_LEVELS, Tool } from "../types";
 import SensorsIcon from "@mui/icons-material/Sensors";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import LockIcon from "@mui/icons-material/Lock";
+import DevicesIcon from "@mui/icons-material/Devices";
 import getUserRole from "../../../common/getUserRole";
-import Permissions from "./Permissions";
+import IoT from "./Devices";
 import Profile from "./Profile";
 import Sensor from "./Sensor";
+import Permissions from "./Permissions";
 import { RouteObject, redirect } from "react-router";
 
 export const tools: Tool[] = [
@@ -21,9 +23,16 @@ export const tools: Tool[] = [
     name: "Sensors",
     icon: React.createElement(SensorsIcon),
     path: "sensors",
-    accessLevel: [ACCESS_LEVELS.ALL],
+    accessLevel: [ACCESS_LEVELS.ADMIN, ACCESS_LEVELS.RESEARCHER],
     component: Sensor,
     children: true,
+  },
+  {
+    name: "IoT Devices",
+    icon: React.createElement(DevicesIcon),
+    path: "devices",
+    accessLevel: [ACCESS_LEVELS.ADMIN, ACCESS_LEVELS.RESEARCHER],
+    component: IoT,
   },
   {
     name: "Permissions",
