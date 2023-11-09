@@ -12,17 +12,16 @@ import {
   Input,
   Select,
   Option,
-  Alert,
   IconButton,
   Button,
   Stack,
+  selectClasses,
 } from "@mui/joy";
-import PlaylistAddCheckCircleRoundedIcon from "@mui/icons-material/PlaylistAddCheckCircleRounded";
-import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { ACCESS_LEVELS } from "../types";
+import { KeyboardArrowDown } from "@mui/icons-material";
+import Alert from "../../../components/Alert";
 
 const Permissions = () => {
   const {
@@ -61,7 +60,16 @@ const Permissions = () => {
       editable: false,
       renderCell: (params: GridCellParams) => (
         <Select
-          sx={{ width: 150 }}
+          sx={{
+            width: 150,
+            [`& .${selectClasses.indicator}`]: {
+              transition: "0.2s",
+              [`&.${selectClasses.expanded}`]: {
+                transform: "rotate(-180deg)",
+              },
+            },
+          }}
+          indicator={<KeyboardArrowDown />}
           defaultValue={params.value as string}
           onChange={(event, value) =>
             handleRoleChange(params.id, value, params.row.awsAccountStatus)
@@ -220,55 +228,12 @@ const Permissions = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box
-        sx={{
-          position: "fixed",
-          top: 10,
-          left: "50%",
-          transform: "translateX(-50%)", // This will center the box horizontally
-          zIndex: 1000, // Ensures the alerts are on top of other elements
-        }}
-      >
-        {successAlertOpen && (
-          <Alert
-            variant="soft"
-            color="success"
-            startDecorator={<PlaylistAddCheckCircleRoundedIcon />}
-            endDecorator={
-              <IconButton
-                variant="plain"
-                size="sm"
-                color="success"
-                onClick={() => setSuccessAlertOpen(false)}
-              >
-                <CloseRoundedIcon />
-              </IconButton>
-            }
-          >
-            {successMessage}
-          </Alert>
-        )}
-
-        {errorAlertOpen && (
-          <Alert
-            variant="outlined"
-            color="danger"
-            startDecorator={<AccountCircleRoundedIcon />}
-            endDecorator={
-              <IconButton
-                variant="plain"
-                size="sm"
-                color="danger"
-                onClick={() => setErrorAlertOpen(false)}
-              >
-                <CloseRoundedIcon />
-              </IconButton>
-            }
-          >
-            {errorMessage}
-          </Alert>
-        )}
-      </Box>
+      <Alert
+        successAlertOpen={successAlertOpen}
+        successMessage={successMessage}
+        errorAlertOpen={errorAlertOpen}
+        errorMessage={errorMessage}
+      />
 
       <div>
         <FormControl

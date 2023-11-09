@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import Table from "../../../components/Table";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Card from "@mui/joy/Card";
-import { Alert, Box, Button, IconButton, styled } from "@mui/joy";
+import { Box, Button, styled } from "@mui/joy";
 import CardContent from "@mui/joy/CardContent";
 import Typography from "@mui/joy/Typography";
-import PlaylistAddCheckCircleRoundedIcon from "@mui/icons-material/PlaylistAddCheckCircleRounded";
-import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { useUploadData } from "../../../api/upload";
 import { useListSensors } from "../../../api/sensors";
+import Alert from "../../../components/Alert";
 
 interface CardProps {
   data: any[];
@@ -46,10 +44,14 @@ const SensorTool = () => {
     setSelectedFile(e.target.files[0]);
   };
   const processedData = data.map((sensor) => {
-    try {
-      sensor.data = JSON.parse(sensor.data);
-    } catch (e) {
-      console.error("Failed to parse sensor data:", e);
+    // Check if sensor.data is already an object or a string that needs parsing.
+    if (typeof sensor.data === "string") {
+      try {
+        sensor.data = JSON.parse(sensor.data);
+      } catch (e) {
+        console.error("Failed to parse sensor data:", e);
+        console.log("Raw sensor data:", sensor.data);
+      }
     }
 
     return {
@@ -57,7 +59,7 @@ const SensorTool = () => {
       data: Array.isArray(sensor.data)
         ? sensor.data.map((item: any, index: number) => ({
             ...item,
-            id: item.id ?? index, // Use existing id or fallback to index
+            id: item.id ?? index,
           }))
         : [],
     };
@@ -87,7 +89,6 @@ const SensorTool = () => {
       setTimeout(() => setErrorAlertOpen(false), 5000);
     }
   };
-  console.log(data);
 
   return (
     <div
@@ -97,56 +98,12 @@ const SensorTool = () => {
         width: "100%",
       }}
     >
-      <Box
-        sx={{
-          position: "fixed",
-          top: 10,
-          left: "50%",
-          transform: "translateX(-50%)", // This will center the box horizontally
-          zIndex: 1000, // Ensures the alerts are on top of other elements
-        }}
-      >
-        {successAlertOpen && (
-          <Alert
-            variant="soft"
-            color="success"
-            startDecorator={<PlaylistAddCheckCircleRoundedIcon />}
-            endDecorator={
-              <IconButton
-                variant="plain"
-                size="sm"
-                color="success"
-                onClick={() => setSuccessAlertOpen(false)}
-              >
-                <CloseRoundedIcon />
-              </IconButton>
-            }
-          >
-            {successMessage}
-          </Alert>
-        )}
-
-        {errorAlertOpen && (
-          <Alert
-            variant="outlined"
-            color="danger"
-            startDecorator={<AccountCircleRoundedIcon />}
-            endDecorator={
-              <IconButton
-                variant="plain"
-                size="sm"
-                color="danger"
-                onClick={() => setErrorAlertOpen(false)}
-              >
-                <CloseRoundedIcon />
-              </IconButton>
-            }
-          >
-            {errorMessage}
-          </Alert>
-        )}
-      </Box>
-
+      <Alert
+        successAlertOpen={successAlertOpen}
+        successMessage={successMessage}
+        errorAlertOpen={errorAlertOpen}
+        errorMessage={errorMessage}
+      />
       {listSensorLoading ? (
         <p>Loading...</p>
       ) : (

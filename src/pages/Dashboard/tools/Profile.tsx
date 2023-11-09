@@ -4,11 +4,11 @@ import {
   useGetUser,
   useRequestAccount,
 } from "../../../api/users";
-import { Alert, Box, Button, IconButton } from "@mui/joy";
-import PlaylistAddCheckCircleRoundedIcon from "@mui/icons-material/PlaylistAddCheckCircleRounded";
-import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import { Button } from "@mui/joy";
+
 import OpenInNew from "@mui/icons-material/OpenInNew";
+import Alert from "../../../components/Alert";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const { data: currentUserData } = useCurrentUser();
@@ -24,7 +24,8 @@ const Profile = () => {
   const [role, setRole] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [awsAccountStatus, setAwsAccountStatus] = useState<string>("");
-  const [alertOpen, setAlertOpen] = useState(false);
+  const [successAlertOpen, setSuccessAlertOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [errorAlertOpen, setErrorAlertOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -45,10 +46,11 @@ const Profile = () => {
       });
 
       // Trigger the Alert on success
-      setAlertOpen(true);
+      setSuccessAlertOpen(true);
+      setSuccessMessage("Successfully requested account");
 
       // hide after 3 seconds
-      setTimeout(() => setAlertOpen(false), 3000);
+      setTimeout(() => setSuccessAlertOpen(false), 3000);
     } catch (error) {
       setErrorAlertOpen(true);
       setErrorMessage(
@@ -69,55 +71,12 @@ const Profile = () => {
         textAlign: "center",
       }}
     >
-      <Box
-        sx={{
-          position: "fixed",
-          top: 10, // You can adjust this as needed
-          left: "50%",
-          transform: "translateX(-50%)", // This will center the box horizontally
-          zIndex: 1000, // Ensures the alerts are on top of other elements
-        }}
-      >
-        {alertOpen && (
-          <Alert
-            variant="soft"
-            color="success"
-            startDecorator={<PlaylistAddCheckCircleRoundedIcon />}
-            endDecorator={
-              <IconButton
-                variant="plain"
-                size="sm"
-                color="success"
-                onClick={() => setAlertOpen(false)}
-              >
-                <CloseRoundedIcon />
-              </IconButton>
-            }
-          >
-            Requested AWS Access!
-          </Alert>
-        )}
-
-        {errorAlertOpen && (
-          <Alert
-            variant="outlined"
-            color="danger"
-            startDecorator={<AccountCircleRoundedIcon />}
-            endDecorator={
-              <IconButton
-                variant="plain"
-                size="sm"
-                color="danger"
-                onClick={() => setErrorAlertOpen(false)}
-              >
-                <CloseRoundedIcon />
-              </IconButton>
-            }
-          >
-            {errorMessage}
-          </Alert>
-        )}
-      </Box>
+      <Alert
+        successAlertOpen={successAlertOpen}
+        successMessage={successMessage}
+        errorAlertOpen={errorAlertOpen}
+        errorMessage={errorMessage}
+      />
 
       {getUserLoading ? (
         <p>Loading...</p>
@@ -155,6 +114,15 @@ const Profile = () => {
               Request AWS Access
             </Button>
           )}
+
+          <Link
+            to="/auth/logout"
+            style={{ display: "block", marginTop: "10px" }}
+          >
+            <Button variant="outlined" color="neutral" sx={{ width: "200px" }}>
+              Logout
+            </Button>
+          </Link>
         </div>
       )}
     </div>

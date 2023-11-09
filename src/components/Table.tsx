@@ -6,6 +6,7 @@ import {
   GridToolbarContainer,
   GridToolbarExport,
 } from "@mui/x-data-grid";
+import { Switch, Typography } from "@mui/joy";
 
 interface TableProps {
   data: any[];
@@ -15,6 +16,12 @@ const CustomToolbar = () => {
   return (
     <GridToolbarContainer>
       <GridToolbarExport />
+      <Typography
+        component="label"
+        endDecorator={<Switch sx={{ ml: 1 }} disabled={true} />}
+      >
+        AI Filter(WiP)
+      </Typography>
     </GridToolbarContainer>
   );
 };
@@ -22,14 +29,11 @@ const CustomToolbar = () => {
 const Table: React.FC<TableProps> = ({ data }) => {
   if (!data.length) return null;
 
-  // Generate columns from data keys
   const columns: GridColDef[] = Object.keys(data[0]).map((key) => ({
     field: key,
     headerName: key.charAt(0).toUpperCase() + key.slice(1),
     editable: false,
     minWidth: 100,
-    // Only use flex when necessary, not with a width
-    // When using flex, you can control the relative size of this column compared to others
   }));
 
   return (
@@ -43,7 +47,6 @@ const Table: React.FC<TableProps> = ({ data }) => {
         }}
         pageSizeOptions={[5]}
         checkboxSelection
-        // Ensure the DataGrid takes the full width of its container
         sx={{
           width: "80vw",
         }}
