@@ -142,7 +142,7 @@ const DynamicGraph: React.FC<DynamicGraphProps> = ({ data }) => {
             value={sensorVarValue}
             indicator={<KeyboardArrowDown />}
             placeholder="Select variable"
-            defaultValue={data.length > 0 ? data : null}
+            defaultValue={data ? data : null}
             onChange={(event, value) => handledSensorVarChange(value)}
           >
             {Object.keys(sensorJson[0]).map((key, index) => (
