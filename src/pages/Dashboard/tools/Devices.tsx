@@ -114,9 +114,10 @@ const Devices = () => {
               onClick={(e) => copyToClipboard(deviceLink)}
               style={{ cursor: "pointer" }}
             >
-              {deviceLink.length > 15
+              {deviceLink}
+              {/* {deviceLink.length > 15
                 ? `${deviceLink.substring(0, 100)}...`
-                : deviceLink}
+                : deviceLink} */}
             </p>
           )}
         </ModalDialog>
