@@ -17,7 +17,6 @@ const uploadData = async (payload: { file: any }) => {
       }
     );
 
-    console.log(data);
     if (!data) {
       console.log("Failed to get upload URL.");
       return;
@@ -39,4 +38,34 @@ const uploadData = async (payload: { file: any }) => {
 
 export const useUploadData = () => {
   return useMutation(uploadData);
+};
+
+const createPresignedUrl = async () => {
+  try {
+    const user = await Auth.currentAuthenticatedUser();
+    const token = user.signInUserSession.idToken.jwtToken;
+
+    // Fetch the pre-signed URL
+    const { data } = await axios.get(
+      process.env.REACT_APP_API_URL + `upload/url`,
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
+
+    if (!data) {
+      console.log("Failed to get upload URL.");
+      return;
+    }
+
+    return data;
+  } catch (error) {
+    console.log("Upload failed.", error);
+  }
+};
+
+export const useCreatePresignedUrl = () => {
+  return useMutation(createPresignedUrl);
 };
