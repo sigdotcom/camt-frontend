@@ -106,7 +106,7 @@ export const createUseMutation = (mutateFunction: any, options = {}) => {
 
 export interface DynamoDbItem {
   [key: string]: {
-    [key: string]: any;
+    [type: string]: any;
   };
 }
 
@@ -114,10 +114,29 @@ export function transformDynamoDbItem(item: DynamoDbItem) {
   let transformedItem: { [key: string]: any } = {};
 
   for (let key in item) {
-    for (let type in item[key]) {
-      transformedItem[key] = item[key][type];
-    }
+    transformedItem[key] = transformAttribute(item[key]);
   }
 
   return transformedItem;
+}
+
+function transformAttribute(attribute: DynamoDbItem[keyof DynamoDbItem]) {
+  for (let type in attribute) {
+    if (type === "M") {
+      // For Map, transform each key-value pair
+      let mapValue: { [key: string]: any } = {};
+      for (let key in attribute[type]) {
+        mapValue[key] = transformAttribute(attribute[type][key]);
+      }
+      return mapValue;
+    } else if (type === "L") {
+      // For List, transform each element
+      return attribute[type].map((element: DynamoDbItem[keyof DynamoDbItem]) =>
+        transformAttribute(element)
+      );
+    } else {
+      // For simple types (String, Number, etc.)
+      return attribute[type];
+    }
+  }
 }

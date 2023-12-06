@@ -59,7 +59,7 @@ const createPresignedUrl = async () => {
       console.log("Failed to get upload URL.");
       return;
     }
-
+    console.log(data);
     return data;
   } catch (error) {
     console.log("Upload failed.", error);
