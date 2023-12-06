@@ -26,7 +26,7 @@ export const useListSensors = (options = {}) => {
   return useQuery("sensors", fetchSensors, options);
 };
 
-const fetchSensor = async (payload: { sensorId: string }) => {
+export const fetchSensor = async (payload: { sensorId: string }) => {
   const user = await Auth.currentAuthenticatedUser();
   const token = user.signInUserSession.idToken.jwtToken;
 
