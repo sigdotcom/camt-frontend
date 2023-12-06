@@ -339,9 +339,9 @@ const DeviceDataCard: React.FC<CardProps> = ({
       data.forEach((stream: any) => {
         if (sensor.sensorId === stream.streamId) {
           // console.log("sup", stream.steams);
+          count = JSON.parse(sensor.data).length + count;
         } else {
           // console.log("sup2", JSON.parse(sensor.data).length);
-          count = JSON.parse(sensor.data).length + count;
         }
       });
       // console.log("sup", sensor);
