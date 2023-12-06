@@ -24,6 +24,12 @@ import {
 } from "../../../api/devices";
 import { DataGrid, GridCellParams, GridColDef } from "@mui/x-data-grid";
 import { Route, Routes, useNavigate } from "react-router-dom";
+import {
+  fetchSensor,
+  useGetSensor,
+  useListSensors,
+} from "../../../api/sensors";
+import { useQueries } from "react-query";
 
 const Devices = () => {
   const createDevice = useCreateDevice();
@@ -317,8 +323,30 @@ interface CardProps {
   routePath: string; // The route to navigate to when the card is clicked
 }
 
-const DeviceDataCard: React.FC<CardProps> = ({ routePath, deviceName }) => {
+const DeviceDataCard: React.FC<CardProps> = ({
+  routePath,
+  deviceName,
+  data,
+}) => {
   const navigate = useNavigate();
+  const { data: sensorData, isLoading: listSensorLoading } = useListSensors();
+  let count = 0;
+  // console.log("sup2", data);
+
+  // console.log("sup", sensorData);
+  if (sensorData) {
+    sensorData.forEach((sensor: any) => {
+      data.forEach((stream: any) => {
+        if (sensor.sensorId === stream.streamId) {
+          // console.log("sup", stream.steams);
+        } else {
+          // console.log("sup2", JSON.parse(sensor.data).length);
+          count = JSON.parse(sensor.data).length + count;
+        }
+      });
+      // console.log("sup", sensor);
+    });
+  }
 
   return (
     <Card
@@ -336,10 +364,10 @@ const DeviceDataCard: React.FC<CardProps> = ({ routePath, deviceName }) => {
       <CardOverflow>
         <AspectRatio ratio="2">
           <img
-            src="https://images.unsplash.com/photo-1532614338840-ab30cf10ed36?auto=format&fit=crop&w=318"
-            srcSet="https://images.unsplash.com/photo-1532614338840-ab30cf10ed36?auto=format&fit=crop&w=318&dpr=2 2x"
+            src="https://cdn.discordapp.com/attachments/757759385618612347/1181833304777957426/rn_image_picker_lib_temp_7f201b5b-7716-44af-b0d2-894f7c0e2073.jpg?ex=65827f09&is=65700a09&hm=043d1f110678ac94ea30bc446da9c9440e02fb878582f402f38a4a3a372a2b21&"
             loading="lazy"
             alt=""
+            style={{ width: "100%", height: "auto", objectFit: "contain" }}
           />
         </AspectRatio>
       </CardOverflow>
@@ -355,7 +383,7 @@ const DeviceDataCard: React.FC<CardProps> = ({ routePath, deviceName }) => {
             fontWeight="md"
             textColor="text.secondary"
           >
-            105 entries
+            {count} entries
           </Typography>
           <Divider orientation="vertical" />
 
@@ -372,7 +400,7 @@ const DeviceDataCard: React.FC<CardProps> = ({ routePath, deviceName }) => {
             fontWeight="md"
             textColor="text.secondary"
           >
-            1 hour ago
+            1 minute ago
           </Typography>
         </CardContent>
       </CardOverflow>
