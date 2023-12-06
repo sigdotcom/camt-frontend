@@ -33,6 +33,7 @@ export const tools: Tool[] = [
     path: "devices",
     accessLevel: [ACCESS_LEVELS.ADMIN, ACCESS_LEVELS.RESEARCHER],
     component: IoT,
+    children: true,
   },
   {
     name: "Permissions",
