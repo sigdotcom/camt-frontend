@@ -1,6 +1,6 @@
 import { KeyboardArrowDown } from "@mui/icons-material";
 import { Select, Option, selectClasses, Stack } from "@mui/joy";
-import { LineChart } from "@mui/x-charts";
+import { LineChart, LineSeriesType } from "@mui/x-charts";
 import React, { useEffect, useState } from "react";
 
 export interface GraphProps {
@@ -8,6 +8,8 @@ export interface GraphProps {
   xAxisLabel: string;
   yAxisData: number[];
   yAxisLabel: string;
+  yAxisDataTwo?: number[];
+  yAxisLabelTwo?: string;
 }
 
 export interface DynamicGraphProps {
@@ -30,6 +32,8 @@ const Graph: React.FC<GraphProps> = ({
   xAxisLabel,
   yAxisData,
   yAxisLabel,
+  yAxisDataTwo,
+  yAxisLabelTwo,
 }) => {
   return (
     <div>
@@ -40,6 +44,11 @@ const Graph: React.FC<GraphProps> = ({
             curve: "catmullRom",
             label: yAxisLabel,
             data: yAxisData,
+          },
+          {
+            curve: "catmullRom",
+            label: yAxisLabelTwo,
+            data: yAxisDataTwo,
           },
         ]}
         width={500}
@@ -56,8 +65,13 @@ const DynamicGraph: React.FC<DynamicGraphProps> = ({ data }) => {
   const [sensorVarValue, setSensorVarValue] = useState<undefined | null>(null);
   const [sensorJson, setSensorJson] = useState<DataPoint[]>([]);
 
+  const [sensorVarTwo, setSensorVarTwo] = useState<string>("");
+  const [sensorVarValueTwo, setSensorVarValueTwo] = useState<undefined | null>(
+    null
+  );
+
   useEffect(() => {
-    if (sensorVar !== "") {
+    if (sensorVar !== "" && sensorVarTwo !== "") {
       const timestamps: number[] = sensorJson.map((dataPoint) =>
         parseFloat(dataPoint.timestamp)
       );
@@ -67,14 +81,21 @@ const DynamicGraph: React.FC<DynamicGraphProps> = ({ data }) => {
         return parseFloat(value);
       });
 
+      const yValuesTwo = sensorJson.map((dataPoint) => {
+        // Access the property using the name stored in sensorVar
+        const value = dataPoint[sensorVarTwo];
+        return parseFloat(value);
+      });
       setGraphData({
         xAxisData: timestamps,
         xAxisLabel: "Time",
         yAxisData: yValues,
         yAxisLabel: sensorVar,
+        yAxisDataTwo: yValuesTwo,
+        yAxisLabelTwo: sensorVarTwo,
       });
     }
-  }, [sensorVar, sensorJson]);
+  }, [sensorVar, sensorVarTwo, sensorJson]);
 
   const handleSensorChange = async (value: any) => {
     if (value) {
@@ -95,6 +116,15 @@ const DynamicGraph: React.FC<DynamicGraphProps> = ({ data }) => {
 
       //Setup reset command
       setSensorVarValue(undefined);
+    }
+  };
+
+  const handledSensorVarChangeTwo = async (value: any) => {
+    if (value) {
+      setSensorVarTwo(value);
+
+      //Setup reset command
+      setSensorVarValueTwo(undefined);
     }
   };
 
@@ -129,28 +159,53 @@ const DynamicGraph: React.FC<DynamicGraphProps> = ({ data }) => {
           ))}
         </Select>
         {sensor !== null ? (
-          <Select
-            sx={{
-              width: 200,
-              [`& .${selectClasses.indicator}`]: {
-                transition: "0.2s",
-                [`&.${selectClasses.expanded}`]: {
-                  transform: "rotate(-180deg)",
+          <div>
+            <Select
+              sx={{
+                width: 200,
+                [`& .${selectClasses.indicator}`]: {
+                  transition: "0.2s",
+                  [`&.${selectClasses.expanded}`]: {
+                    transform: "rotate(-180deg)",
+                  },
                 },
-              },
-            }}
-            value={sensorVarValue}
-            indicator={<KeyboardArrowDown />}
-            placeholder="Select variable"
-            defaultValue={data ? data : null}
-            onChange={(event, value) => handledSensorVarChange(value)}
-          >
-            {Object.keys(sensorJson[0]).map((key, index) => (
-              <Option key={index} value={key}>
-                {key}
-              </Option>
-            ))}
-          </Select>
+              }}
+              value={sensorVarValue}
+              indicator={<KeyboardArrowDown />}
+              placeholder="Select variable"
+              defaultValue={data ? data : null}
+              onChange={(event, value) => handledSensorVarChange(value)}
+            >
+              {Object.keys(sensorJson[0]).map((key, index) => (
+                <Option key={index} value={key}>
+                  {key}
+                </Option>
+              ))}
+            </Select>
+
+            <Select
+              sx={{
+                width: 200,
+                [`& .${selectClasses.indicator}`]: {
+                  transition: "0.2s",
+                  [`&.${selectClasses.expanded}`]: {
+                    transform: "rotate(-180deg)",
+                  },
+                },
+              }}
+              value={sensorVarValue}
+              indicator={<KeyboardArrowDown />}
+              placeholder="Select second variable"
+              defaultValue={data ? data : null}
+              onChange={(event, value) => handledSensorVarChangeTwo(value)}
+            >
+              {Object.keys(sensorJson[0]).map((key, index) => (
+                <Option key={index} value={key}>
+                  {key}
+                </Option>
+              ))}
+            </Select>
+          </div>
         ) : (
           <></>
         )}
@@ -162,6 +217,8 @@ const DynamicGraph: React.FC<DynamicGraphProps> = ({ data }) => {
           xAxisLabel={graphData.xAxisLabel}
           yAxisData={graphData.yAxisData}
           yAxisLabel={graphData.yAxisLabel}
+          yAxisDataTwo={graphData.yAxisDataTwo}
+          yAxisLabelTwo={graphData.yAxisLabelTwo}
         />
       ) : (
         <></>
