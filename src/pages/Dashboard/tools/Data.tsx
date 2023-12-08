@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useListSensors } from "../../../api/sensors";
 import { DynamicGraph } from "../../../components/Graph";
 
